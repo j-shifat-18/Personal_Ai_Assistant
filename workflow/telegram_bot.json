@@ -1,0 +1,707 @@
+{
+  "name": "telegram_bot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -240,
+        -128
+      ],
+      "id": "8168b025-7d58-462b-83ca-bf9db32861ba",
+      "name": "Telegram Trigger",
+      "webhookId": "d4973d7c-7bec-4199-a7a1-5bdbda80deb5",
+      "credentials": {
+        "telegramApi": {
+          "id": "iwow7mNvfgfm9cp3",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8589fa63-408a-4ddd-96cb-a15e0e3627c9",
+              "name": "message.chat.id",
+              "value": "={{ $json.message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "3c0992fa-623e-4a27-9074-ecbcec055ffd",
+              "name": "message.text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            },
+            {
+              "id": "28aae271-2fc0-4673-ba2f-7c0e8e41cde1",
+              "name": "sessionId",
+              "value": "={{ $json.message.from.id }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        80,
+        -128
+      ],
+      "id": "205ebd54-2746-456a-99d8-489d2cd6299d",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "=You are a personal assistant that helps user fulfill their requests.\\n\\nWhen you are asked to perform a task on the current date, please use the current time and date :  {{ $now }}\n\n## OUtput\nYou should output the result and don't include any thing unnecessary. Just  make sure that you politely answer user question and ask if any other information is required.\n\nIf you asked about task to do today , use the \"todoist_tool\" to get all the tasks . And send them in formated way ( using number list ).\nAlso if tells that any task(s) is completed then you the \"close_tasks\" to close that task .\n\n\nIf you asked to create a docs about any topic or scenario , use the \"google_docs\" tool to create a doc , then use the \"update_docs\" to update the content inside the doc , make sure the doc is written in proper formatting with proper details .\n\nIf user tell you he/she has any event(exam or other event ) on a date , use the \"schedule_event\" tool to create  event on google calender ,and if need to update any event use the tool \"update_event\" , make sure to give the event a proper title and description , confirm the user that you have scheduled the events .\n\nIf user ask you about if he/she has any exam or event on a date , then use the \"get_events\" tool find the events and send them to user in a formated way .\n\n\n\n#if you asked about something about the user or anything related to the user that you dont know , use \"retrive_documents_info\" to find the info abou the user .\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        368,
+        -128
+      ],
+      "id": "7a72b3d7-ff85-42f4-a982-57b6c48d9340",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -144,
+        192
+      ],
+      "id": "0d9da67f-c6b3-4595-bcc0-10c78fca8930",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "telegramApi": {
+          "id": "iwow7mNvfgfm9cp3",
+          "name": "Telegram account"
+        },
+        "openAiApi": {
+          "id": "ogQ7j0ieduwhgMNs",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Edit Fields').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        816,
+        -128
+      ],
+      "id": "33d4b064-ef4d-4cfd-bf6b-df50fa0fbeed",
+      "name": "Send a text message",
+      "webhookId": "50b50d65-1904-48ee-98ee-01fc78b83c15",
+      "credentials": {
+        "telegramApi": {
+          "id": "iwow7mNvfgfm9cp3",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many tasks in Todoist",
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.todoistTool",
+      "typeVersion": 2.2,
+      "position": [
+        1072,
+        192
+      ],
+      "id": "3dbe4977-4023-42dd-970d-bc8da691011f",
+      "name": "todoist_tool",
+      "credentials": {
+        "todoistOAuth2Api": {
+          "id": "eFHMywgL8GIU2aGG",
+          "name": "Todoist OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Close a task in Todoist",
+        "authentication": "oAuth2",
+        "operation": "close",
+        "taskId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Task_ID', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.todoistTool",
+      "typeVersion": 2.2,
+      "position": [
+        1184,
+        192
+      ],
+      "id": "8bb4f221-9b43-41c7-9435-6df16896b6fb",
+      "name": "close_tasks",
+      "credentials": {
+        "todoistOAuth2Api": {
+          "id": "eFHMywgL8GIU2aGG",
+          "name": "Todoist OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create a document in Google Docs",
+        "folderId": "default",
+        "title": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Title', ``, 'string') }}"
+      },
+      "type": "n8n-nodes-base.googleDocsTool",
+      "typeVersion": 2,
+      "position": [
+        672,
+        208
+      ],
+      "id": "2ea93aa3-b9fe-4bba-bdb3-d89451d08acf",
+      "name": "google_docs",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "0j5MzYvl5Eovm9o3",
+          "name": "Google Docs OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Doc_ID_or_URL', ``, 'string') }}",
+        "actionsUi": {
+          "actionFields": []
+        }
+      },
+      "type": "n8n-nodes-base.googleDocsTool",
+      "typeVersion": 2,
+      "position": [
+        576,
+        208
+      ],
+      "id": "ab4042e9-586d-4105-8d7d-cbf2a267edaa",
+      "name": "update_docs",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "0j5MzYvl5Eovm9o3",
+          "name": "Google Docs OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "jahirulislam@iut-dhaka.edu",
+          "mode": "list",
+          "cachedResultName": "jahirulislam@iut-dhaka.edu"
+        },
+        "returnAll": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Return_All', ``, 'boolean') }}",
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        768,
+        208
+      ],
+      "id": "2397aca6-f481-49c4-937f-a77331e55e62",
+      "name": "get_events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "76s0di5hgTm1VSUD",
+          "name": "Google Calendar OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "jahirulislam@iut-dhaka.edu",
+          "mode": "list",
+          "cachedResultName": "jahirulislam@iut-dhaka.edu"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        960,
+        208
+      ],
+      "id": "2f88cab8-aec6-4ef2-8d9d-4465199c598a",
+      "name": "schedule_event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "76s0di5hgTm1VSUD",
+          "name": "Google Calendar OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "jahirulislam@iut-dhaka.edu",
+          "mode": "list",
+          "cachedResultName": "jahirulislam@iut-dhaka.edu"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "updateFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+          "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        864,
+        208
+      ],
+      "id": "e86fe2b4-d2ba-4f87-bf30-88cc2d4b3b64",
+      "name": "update_event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "76s0di5hgTm1VSUD",
+          "name": "Google Calendar OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        272
+      ],
+      "id": "b7b965bb-3008-430a-8bd3-8306db0365e9",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "0VQmvV5k3p5QHMmC",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        480
+      ],
+      "id": "07c684fa-281f-40ec-8cf2-9cc3bcbff451",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "ogQ7j0ieduwhgMNs",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        768,
+        672
+      ],
+      "id": "c3ea4ebb-6fec-4fb3-be0e-38dad04af64e",
+      "name": "Supabase Vector Store1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "XD1i7ynZnbX66DhR",
+          "name": "Supabase account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        1040
+      ],
+      "id": "d9bb2111-d8ea-4202-9263-c9de7d535f23",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "ogQ7j0ieduwhgMNs",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        816,
+        832
+      ],
+      "id": "49c2fb44-7917-45c5-916c-347ae981feac",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        1088
+      ],
+      "id": "c5e62d3e-fe43-4eb7-afd9-e01ba53adf6f",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1aD0nYCxJNfjozcocnxTNEECZsbhvg3bU",
+          "mode": "list",
+          "cachedResultName": "jahirul_shifat_resume (1).pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/1aD0nYCxJNfjozcocnxTNEECZsbhvg3bU/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        480,
+        688
+      ],
+      "id": "66b17250-7f91-4bbe-a658-c5edd7b0d42d",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "RtfGbOukX444M1CG",
+          "name": "Google Drive OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Use to find the related data which user stored .",
+        "tableName": {
+          "__rl": true,
+          "value": "documents",
+          "mode": "list",
+          "cachedResultName": "documents"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1.3,
+      "position": [
+        144,
+        272
+      ],
+      "id": "ea40d762-5649-47e2-8126-b2f1e2d19625",
+      "name": "retrive_documents_info",
+      "credentials": {
+        "supabaseApi": {
+          "id": "XD1i7ynZnbX66DhR",
+          "name": "Supabase account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    },
+    "todoist_tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "close_tasks": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "google_docs": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update_docs": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_events": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "schedule_event": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "update_event": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "retrive_documents_info",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "retrive_documents_info": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "bedf412c-f5b8-48fc-b4d0-accaa503c82f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2cbbb8efc5d4989b5a86749c5a770276b22bf643e4ea653e8249705dc584ec65"
+  },
+  "nodeGroups": [],
+  "id": "wFYJVJzSd1cOeaO4",
+  "tags": [
+    {
+      "updatedAt": "2026-06-24T05:42:03.273Z",
+      "createdAt": "2026-06-24T05:42:03.273Z",
+      "id": "okveZmTqdhACpSa0",
+      "name": "telegram"
+    }
+  ]
+}
