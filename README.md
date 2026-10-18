@@ -4,6 +4,12 @@ A fully automated personal AI assistant built with [n8n](https://n8n.io/), power
 
 ---
 
+## 🗺️ Workflow Overview
+
+![Workflow Diagram](workflow/workflow.png)
+
+---
+
 ## ✨ Features
 
 | Capability | Description |
